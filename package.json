@@ -7,9 +7,11 @@
     "serve": "vite preview"
   },
   "devDependencies": {
-    "vite": "^2.1.0"
+    "vite": "^2.1.0",
+    "vite-plugin-string": "^1.0.1"
   },
   "dependencies": {
+    "gsap": "^3.6.1",
     "three": "^0.128.0"
   }
 }
