@@ -1,3 +1,4 @@
+import './tailwind.css'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import vertexShader from './shaders/vertex.glsl'
@@ -120,6 +121,7 @@ function animate() {
   requestAnimationFrame(animate)
   renderer.render(scene, camera)
   // sphere.rotation.y += 0.002
+
   gsap.to(group.rotation, {
     x: -mouse.y * 1.8,
     y: mouse.x * 1.8,
