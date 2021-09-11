@@ -82,7 +82,7 @@ camera.position.z = 15
 
 function createPoint(lat, lng) {
   const point = new THREE.Mesh(
-    new THREE.SphereGeometry(0.1, 50, 50),
+    new THREE.BoxGeometry(0.1, 0.1, 0.8),
     new THREE.MeshBasicMaterial({
       color: '#ff0000'
     })
@@ -100,6 +100,9 @@ function createPoint(lat, lng) {
   point.position.x = x
   point.position.y = y
   point.position.z = z
+
+  point.lookAt(0, 0, 0)
+  point.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.4))
 
   group.add(point)
 }
