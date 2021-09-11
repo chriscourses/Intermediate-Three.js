@@ -80,11 +80,13 @@ scene.add(stars)
 
 camera.position.z = 15
 
-function createPoint(lat, lng) {
+function createBox({ lat, lng, country, population }) {
   const box = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 0.1, 0.8),
+    new THREE.BoxGeometry(0.2, 0.2, 0.8),
     new THREE.MeshBasicMaterial({
-      color: '#3bf7ff'
+      color: '#3BF7FF',
+      opacity: 0.4,
+      transparent: true
     })
   )
 
@@ -107,7 +109,7 @@ function createPoint(lat, lng) {
   group.add(box)
 
   gsap.to(box.scale, {
-    z: 0,
+    z: 1.4,
     duration: 2,
     yoyo: true,
     repeat: -1,
@@ -115,13 +117,41 @@ function createPoint(lat, lng) {
     delay: Math.random()
   })
   // box.scale.z =
+
+  box.country = country
+  box.population = population
 }
 
-createPoint(23.6345, -102.5528)
-createPoint(-14.235, -51.9253)
-createPoint(20.5937, 78.9629)
-createPoint(35.8617, 104.1954)
-createPoint(37.0902, -95.7129)
+createBox({
+  lat: 23.6345,
+  lng: -102.5528,
+  country: 'Mexico',
+  population: '127.6 million'
+})
+createBox({
+  lat: -14.235,
+  lng: -51.9253,
+  country: 'Brazil',
+  population: '211 million'
+})
+createBox({
+  lat: 20.5937,
+  lng: 78.9629,
+  country: 'India',
+  population: '1.366 billion'
+})
+createBox({
+  lat: 35.8617,
+  lng: 104.1954,
+  country: 'China',
+  population: '1.398 billion'
+})
+createBox({
+  lat: 37.0902,
+  lng: -95.7129,
+  country: 'USA',
+  population: '328.2 million'
+})
 
 sphere.rotation.y = -Math.PI / 2
 
@@ -130,24 +160,68 @@ const mouse = {
   y: undefined
 }
 
+console.log(group.children)
+
+const raycaster = new THREE.Raycaster()
+const popUpEl = document.querySelector('#popUpEl')
+const populationEl = document.querySelector('#populationEl')
+const populationValueEl = document.querySelector('#populationValueEl')
+
 function animate() {
   requestAnimationFrame(animate)
   renderer.render(scene, camera)
-  // sphere.rotation.y += 0.002
+  group.rotation.y += 0.002
 
-  if (mouse.x) {
-    gsap.to(group.rotation, {
-      x: -mouse.y * 1.8,
-      y: mouse.x * 1.8,
-      duration: 2
+  // if (mouse.x) {
+  //   gsap.to(group.rotation, {
+  //     x: -mouse.y * 1.8,
+  //     y: mouse.x * 1.8,
+  //     duration: 2
+  //   })
+  // }
+
+  // update the picking ray with the camera and mouse position
+  raycaster.setFromCamera(mouse, camera)
+
+  // calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects(
+    group.children.filter((mesh) => {
+      return mesh.geometry.type === 'BoxGeometry'
     })
+  )
+
+  group.children.forEach((mesh) => {
+    mesh.material.opacity = 0.4
+  })
+
+  gsap.set(popUpEl, {
+    display: 'none'
+  })
+
+  for (let i = 0; i < intersects.length; i++) {
+    const box = intersects[i].object
+    box.material.opacity = 1
+    gsap.set(popUpEl, {
+      display: 'block'
+    })
+
+    populationEl.innerHTML = box.country
+
+    populationValueEl.innerHTML = box.population
   }
+
+  renderer.render(scene, camera)
 }
 animate()
 
-addEventListener('mousemove', () => {
-  mouse.x = (event.clientX / innerWidth) * 2 - 1
+addEventListener('mousemove', (event) => {
+  mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1
   mouse.y = -(event.clientY / innerHeight) * 2 + 1
+
+  gsap.set(popUpEl, {
+    x: event.clientX,
+    y: event.clientY
+  })
 
   // console.log(mouse)
 })
