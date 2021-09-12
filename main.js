@@ -215,9 +215,17 @@ createBoxes(countries)
 
 sphere.rotation.y = -Math.PI / 2
 
+group.rotation.offset = {
+  x: 0,
+  y: 0
+}
+
 const mouse = {
   x: undefined,
-  y: undefined
+  y: undefined,
+  down: false,
+  xPrev: undefined,
+  yPrev: undefined
 }
 
 console.log(group.children)
@@ -230,7 +238,7 @@ const populationValueEl = document.querySelector('#populationValueEl')
 function animate() {
   requestAnimationFrame(animate)
   renderer.render(scene, camera)
-  group.rotation.y += 0.002
+  // group.rotation.y += 0.002
 
   // if (mouse.x) {
   //   gsap.to(group.rotation, {
@@ -274,6 +282,12 @@ function animate() {
 }
 animate()
 
+canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
+  mouse.down = true
+  mouse.xPrev = clientX
+  mouse.yPrev = clientY
+})
+
 addEventListener('mousemove', (event) => {
   mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1
   mouse.y = -(event.clientY / innerHeight) * 2 + 1
@@ -283,5 +297,27 @@ addEventListener('mousemove', (event) => {
     y: event.clientY
   })
 
+  if (mouse.down) {
+    event.preventDefault()
+    // console.log('turn the earth')
+    const deltaX = event.clientX - mouse.xPrev
+    const deltaY = event.clientY - mouse.yPrev
+
+    group.rotation.offset.x += deltaY * 0.005
+    group.rotation.offset.y += deltaX * 0.005
+
+    gsap.to(group.rotation, {
+      y: group.rotation.offset.y,
+      x: group.rotation.offset.x,
+      duration: 2
+    })
+    mouse.xPrev = event.clientX
+    mouse.yPrev = event.clientY
+  }
+
   // console.log(mouse)
+})
+
+addEventListener('mouseup', (event) => {
+  mouse.down = false
 })
