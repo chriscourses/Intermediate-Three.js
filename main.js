@@ -13,7 +13,7 @@ console.log(countries)
 const canvasContainer = document.querySelector('#canvasContainer')
 
 const scene = new THREE.Scene()
-const camera = new THREE.PerspectiveCamera(
+let camera = new THREE.PerspectiveCamera(
   75,
   canvasContainer.offsetWidth / canvasContainer.offsetHeight,
   0.1,
@@ -289,8 +289,15 @@ canvasContainer.addEventListener('mousedown', ({ clientX, clientY }) => {
 })
 
 addEventListener('mousemove', (event) => {
-  mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1
-  mouse.y = -(event.clientY / innerHeight) * 2 + 1
+  if (innerWidth >= 1280) {
+    mouse.x = ((event.clientX - innerWidth / 2) / (innerWidth / 2)) * 2 - 1
+    mouse.y = -(event.clientY / innerHeight) * 2 + 1
+  } else {
+    const offset = canvasContainer.getBoundingClientRect().top
+    mouse.x = (event.clientX / innerWidth) * 2 - 1
+    mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+    console.log(mouse.y)
+  }
 
   gsap.set(popUpEl, {
     x: event.clientX,
@@ -320,4 +327,16 @@ addEventListener('mousemove', (event) => {
 
 addEventListener('mouseup', (event) => {
   mouse.down = false
+})
+
+addEventListener('resize', () => {
+  renderer.setSize(canvasContainer.offsetWidth, canvasContainer.offsetHeight)
+  camera = new THREE.PerspectiveCamera(
+    75,
+    canvasContainer.offsetWidth / canvasContainer.offsetHeight,
+    0.1,
+    1000
+  )
+
+  camera.position.z = 15
 })
