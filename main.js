@@ -340,3 +340,50 @@ addEventListener('resize', () => {
 
   camera.position.z = 15
 })
+
+addEventListener(
+  'touchmove',
+  (event) => {
+    event.clientX = event.touches[0].clientX
+    event.clientY = event.touches[0].clientY
+
+    const doesIntersect = raycaster.intersectObject(sphere)
+    console.log(doesIntersect)
+    if (doesIntersect.length > 0) mouse.down = true
+
+    if (mouse.down) {
+      const offset = canvasContainer.getBoundingClientRect().top
+      mouse.x = (event.clientX / innerWidth) * 2 - 1
+      mouse.y = -((event.clientY - offset) / innerHeight) * 2 + 1
+      console.log(mouse.y)
+
+      gsap.set(popUpEl, {
+        x: event.clientX,
+        y: event.clientY
+      })
+
+      event.preventDefault()
+      // console.log('turn the earth')
+      const deltaX = event.clientX - mouse.xPrev
+      const deltaY = event.clientY - mouse.yPrev
+
+      group.rotation.offset.x += deltaY * 0.005
+      group.rotation.offset.y += deltaX * 0.005
+
+      gsap.to(group.rotation, {
+        y: group.rotation.offset.y,
+        x: group.rotation.offset.x,
+        duration: 2
+      })
+      mouse.xPrev = event.clientX
+      mouse.yPrev = event.clientY
+    }
+
+    // console.log(mouse)
+  },
+  { passive: false }
+)
+
+addEventListener('touchend', (event) => {
+  mouse.down = false
+})
